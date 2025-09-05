@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # setup-bop.sh — POSIX installer for bunny-origin-protection (iptables)
 # - Downloads bop.py directly from GitHub
 # - Detects OS / Python / iptables
