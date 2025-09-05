@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # setup-bop.sh — POSIX installer for bunny-origin-protection (iptables)
 # - Downloads bop.py directly from GitHub
 # - Detects OS / Python / iptables
@@ -31,12 +31,16 @@ STATE_DIR="/var/lib/bop"
 BACKUP_V4="$STATE_DIR/iptables.backup.v4"
 BACKUP_V6="$STATE_DIR/iptables.backup.v6"
 
-say() { printf "[1;34m==>[0m %s\n" "$*"; }
-warn() { printf "[1;33m[warn][0m %s\n" "$*"; }
-err() { printf "[1;31m[err][0m %s\n" "$*"; }
+say() { printf "[1;34m==>[0m %s
+" "$*"; }
+warn() { printf "[1;33m[warn][0m %s
+" "$*"; }
+err() { printf "[1;31m[err][0m %s
+" "$*"; }
 run() {
   if [ "$DRY_RUN" -eq 1 ]; then
-    printf 'DRY-RUN: ' ; printf '%s ' "$@" ; printf '\n'
+    printf 'DRY-RUN: ' ; printf '%s ' "$@" ; printf '
+'
   else
     "$@"
   fi
@@ -369,10 +373,12 @@ setup_cron() {
   CRONFILE=/etc/cron.d/bop
   LINE="$CRON_SCHEDULE root $INSTALL_DIR/bop-run >> /var/log/bop.log 2>&1"
   if [ "$DRY_RUN" -eq 1 ]; then
-    say "Would write $CRONFILE with:"; printf '%s\n' "$LINE"
+    say "Would write $CRONFILE with:"; printf '%s
+' "$LINE"
   else
     umask 022
-    printf '%s\n' "$LINE" > "$CRONFILE"
+    printf '%s
+' "$LINE" > "$CRONFILE"
     chmod 0644 "$CRONFILE"
     if command -v systemctl >/dev/null 2>&1; then
       systemctl enable --now cron.service 2>/dev/null || \
