@@ -137,22 +137,30 @@ def nft_apply(script: str, dry_run: bool) -> None:
             pass
 
 # -------------------- renderers --------------------
-
-def render_bootstrap(table: str, chain: str, ports: Sequence[int], ipv6_mode: str) -> str:
+def render_bootstrap(table, chain, ports, ipv6_mode):
     ports_list = ", ".join(str(p) for p in sorted({int(p) for p in ports}))
-    # Use explicit newlines *and* semicolons so any accidental line-joins are harmless.
-    parts: List[str] = [
+    parts = [
         f"table inet {table} {{",
         "  set bunny_v4 { type ipv4_addr; }",
         "  set bunny_v6 { type ipv6_addr; }",
         f"  chain {chain} {{ type filter hook input priority -150; policy accept; }}",
+        f"  chain {chain}_pre {{ type filter hook prerouting priority -200; policy accept; }}",
         "}",
+        # INPUT path (kept for non-Docker/local services)
         f"flush chain inet {table} {chain};",
         f"add rule inet {table} {chain} tcp dport {{ {ports_list} }} ip saddr @bunny_v4 accept;",
     ]
     if ipv6_mode == "allow":
         parts.append(f"add rule inet {table} {chain} tcp dport {{ {ports_list} }} ip6 saddr @bunny_v6 accept;")
     parts.append(f"add rule inet {table} {chain} tcp dport {{ {ports_list} }} drop;")
+    # PREROUTING path (blocks before Docker DNAT)
+    parts += [
+        f"flush chain inet {table} {chain}_pre;",
+        f"add rule inet {table} {chain}_pre tcp dport {{ {ports_list} }} ip saddr @bunny_v4 accept;",
+    ]
+    if ipv6_mode == "allow":
+        parts.append(f"add rule inet {table} {chain}_pre tcp dport {{ {ports_list} }} ip6 saddr @bunny_v6 accept;")
+    parts.append(f"add rule inet {table} {chain}_pre tcp dport {{ {ports_list} }} drop;")
     return "\n".join(parts) + "\n"
 
 def render_set_update(table: str, v4: Sequence[str], v6: Sequence[str], ipv6_mode: str) -> str:
