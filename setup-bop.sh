@@ -31,12 +31,6 @@ STATE_DIR="/var/lib/bop"
 BACKUP_V4="$STATE_DIR/iptables.backup.v4"
 BACKUP_V6="$STATE_DIR/iptables.backup.v6"
 
-say() { printf "[1;34m==>[0m %s
-" "$*"; }
-warn() { printf "[1;33m[warn][0m %s
-" "$*"; }
-err() { printf "[1;31m[err][0m %s
-" "$*"; }
 run() {
   if [ "$DRY_RUN" -eq 1 ]; then
     printf 'DRY-RUN: ' ; printf '%s ' "$@" ; printf '
