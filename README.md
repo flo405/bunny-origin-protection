@@ -53,32 +53,6 @@ curl -fsSL https://raw.githubusercontent.com/flo405/bunny-origin-protection/refs
 
 ---
 
-## How it works (nftables layout)
-
-This tool owns a dedicated table: `table inet bop`.
-
-```nft
-table inet bop {
-  sets {
-    bunny_v4 { type ipv4_addr; flags interval; }
-    bunny_v6 { type ipv6_addr; flags interval; }
-  }
-  chains {
-    gate {
-      type filter hook input priority -150; policy accept;
-      tcp dport {80,443} ip  saddr @bunny_v4 accept
-      # (optional, if --ipv6 allow)
-      tcp dport {80,443} ip6 saddr @bunny_v6 accept
-      tcp dport {80,443} drop
-    }
-  }
-}
-```
-
-On each refresh we **only update the set contents** (`bunny_v4` / `bunny_v6`), keeping rules stable and drop‑first safe.
-
----
-
 ## CLI reference (controller)
 
 ```bash
