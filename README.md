@@ -13,17 +13,9 @@ Allow **only bunny.net edge IPs** to reach your origin on **ports 80 and 443** u
 
 ---
 
-## One‑liner install
+## One‑liner Setup
 
-> Piping to shell is convenient; review the script if you prefer (see **Manual install** below).
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/flo405/bunny-origin-protection/refs/heads/main/setup-bop.sh | sudo sh
-```
-
-### Setup
-
-* Refresh every 5 minutes and block IPv6 completely:
+**Install**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/flo405/bunny-origin-protection/refs/heads/main/setup-bop.sh \
