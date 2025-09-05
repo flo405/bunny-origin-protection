@@ -156,24 +156,22 @@ def nft_apply(script: str, dry_run: bool) -> None:
 
 def render_bootstrap(table: str, chain: str, ports: Sequence[int], ipv6_mode: str) -> str:
     ports_list = ", ".join(str(p) for p in sorted(set(int(p) for p in ports)))
-    lines = []
-    # Create table & objects if missing. Using table block defines objects idempotently for our own table.
+    lines: List[str] = []
+    # Define/replace our table with minimal, widely-compatible syntax
     lines.append(f"table inet {table} {{")
-    lines.append("  sets {")
-    lines.append("    bunny_v4 { type ipv4_addr; flags interval; }")
-    lines.append("    bunny_v6 { type ipv6_addr; flags interval; }")
-    lines.append("  }")
-    lines.append("  chains {")
-    lines.append(f"    {chain} {{ type filter hook input priority -150; policy accept; }}")
-    lines.append("  }")
+    lines.append("  set bunny_v4 { type ipv4_addr; }")
+    lines.append("  set bunny_v6 { type ipv6_addr; }")
+    lines.append("")
+    lines.append(f"  chain {chain} {{ type filter hook input priority -150; policy accept; }}")
     lines.append("}")
-    # Ensure chain has expected rules; flush & re-add to cover port changes
+    # Rebuild chain content to ensure correct rules
     lines.append(f"flush chain inet {table} {chain}")
     lines.append(f"add rule inet {table} {chain} tcp dport {{ {ports_list} }} ip saddr @bunny_v4 accept")
     if ipv6_mode == "allow":
         lines.append(f"add rule inet {table} {chain} tcp dport {{ {ports_list} }} ip6 saddr @bunny_v6 accept")
     lines.append(f"add rule inet {table} {chain} tcp dport {{ {ports_list} }} drop")
-    return "\n".join(lines)
+    return "
+".join(lines)
 
 
 def render_set_update(table: str, v4: Sequence[str], v6: Sequence[str], ipv6_mode: str) -> str:
