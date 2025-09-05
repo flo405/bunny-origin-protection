@@ -4,8 +4,7 @@ Allow **only bunny.net edge IPs** to reach your origin on **ports 80 and 443** u
 
 ## Why this tool?
 
-* ✅ **nftables-first**: uses an `inet` table with IP sets for clean, fast matching
-* 🔐 **Strict origin lockdown**: accept bunny IPs, drop everyone else on 80/443
+* 🔐 **Strict origin lockdown**: accept bunny IPs, drop other external IPs on 80/443
 * 🔁 **Idempotent updates**: only set contents change; rules remain stable
 * 🧯 **Safe by default**: IPv6 can be *blocked* entirely
 * 🕒 **Automatic refresh**: systemd timer (or cron fallback)
