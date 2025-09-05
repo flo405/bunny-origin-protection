@@ -17,15 +17,13 @@ Allow **only bunny.net edge IPs** to reach your origin on **ports 80 and 443** u
 **Install**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/flo405/bunny-origin-protection/refs/heads/main/setup-bop.sh \
-  | sudo sh -s -- --refresh 5 --ipv6 block
+curl -fsSL https://raw.githubusercontent.com/flo405/bunny-origin-protection/refs/heads/main/setup-bop.sh | sudo sh -s -- --refresh 5 --ipv6 block
 ```
 
 **Uninstall & rollback:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/flo405/bunny-origin-protection/refs/heads/main/setup-bop.sh \
-  | sudo sh -s -- --uninstall
+curl -fsSL https://raw.githubusercontent.com/flo405/bunny-origin-protection/refs/heads/main/setup-bop.sh | sudo sh -s -- --uninstall
 ```
 
 ---
