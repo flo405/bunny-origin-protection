@@ -45,6 +45,9 @@ run() {
     "$@"
   fi
 }
+say()  { printf "==> %s\n" "$*" 1>&2; }
+warn() { printf "[warn] %s\n" "$*" 1>&2; }
+err()  { printf "[err] %s\n" "$*" 1>&2; }
 
 usage() {
   cat <<'USAGE'
