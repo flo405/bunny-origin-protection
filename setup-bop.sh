@@ -114,15 +114,26 @@ backup_nft() {
 }
 
 restore_nft() {
+  if ! command -v nft >/dev/null 2>&1; then
+    warn "nft not found; cannot restore nftables snapshot"
+    return 0
+  fi
   if [ -s "$STATE_DIR/backup.nft" ]; then
     say "Restoring nft ruleset snapshot"
     if [ "$DRY_RUN" -eq 1 ]; then
-      say "Would: nft -f $STATE_DIR/backup.nft"
+      say "Would: flush ruleset then apply $STATE_DIR/backup.nft"
     else
-      nft -f "$STATE_DIR/backup.nft" || warn "restore failed"
+      # avoid duplicate object errors: flush entire ruleset first
+      TMP=$(mktemp -t boprestore.XXXXXX) || { err "mktemp failed"; return 1; }
+      printf 'flush ruleset\n' > "$TMP"
+      cat "$STATE_DIR/backup.nft" >> "$TMP"
+      nft -f "$TMP" || warn "restore failed"
+      rm -f "$TMP"
     fi
   else
-    warn "No snapshot found to restore."
+    warn "No snapshot found; best-effort cleanup only"
+    # remove our table if present
+    nft delete table inet bop 2>/dev/null || nft flush table inet bop 2>/dev/null || true
   fi
 }
 
@@ -220,17 +231,26 @@ first_apply() {
 
 uninstall() {
   say "Uninstalling"
+  # stop schedulers first so they don't re-apply rules mid-restore
   if command -v systemctl >/dev/null 2>&1; then
     systemctl disable --now bop-nft.timer 2>/dev/null || true
     systemctl disable --now bop-nft.service 2>/dev/null || true
     rm -f /etc/systemd/system/bop-nft.timer /etc/systemd/system/bop-nft.service
-    systemctl daemon-reload || true
+    systemctl daemon-reload 2>/dev/null || true
   fi
   rm -f /etc/cron.d/bop-nft
-  rm -f "$INSTALL_DIR/$DEST_NAME"
+
+  # proactively drop our table to avoid conflicts; then restore snapshot
+  if command -v nft >/dev/null 2>&1; then
+    nft delete table inet bop 2>/dev/null || nft flush table inet bop 2>/dev/null || true
+  fi
   restore_nft
-  say "Done."
+
+  # remove binaries
+  rm -f "$INSTALL_DIR/$DEST_NAME"
+  say "Uninstall complete."
 }
+
 
 main() {
   need_root
