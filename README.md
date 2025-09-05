@@ -1,4 +1,4 @@
-# Bunny Origin Protection (nftables-only)
+# Bunny Origin Protection
 
 Allow **only bunny.net edge IPs** to reach your origin on **ports 80 and 443** using **nftables** sets. Atomic, idempotent, and easy to install with a single command.
 
