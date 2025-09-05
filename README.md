@@ -22,9 +22,7 @@ It’s designed to be safe to re-run (e.g., via cron), and ships with a POSIX-`s
 
 ---
 
-## Quick start (one-liners)
-
-> ⚠️ You are piping to `sh`. Review the script if that’s a concern (see “Safer install” below).
+## Quick start
 
 **Install (no cron):**
 ```bash
