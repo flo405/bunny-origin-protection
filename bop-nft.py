@@ -141,10 +141,10 @@ def render_bootstrap(table: str, chain: str, ports: Sequence[int], ipv6_mode: st
     ports_list = ", ".join(str(p) for p in sorted({int(p) for p in ports}))
     parts: List[str] = [
         f"table inet {table} {{",
-        "  set bunny_v4    { type ipv4_addr; }",
-        "  set bunny_v6    { type ipv6_addr; }",
-        "  set internal_v4 { type ipv4_addr; }",
-        "  set internal_v6 { type ipv6_addr; }",
+        "  set bunny_v4    { type ipv4_addr; flags interval; }",
+        "  set bunny_v6    { type ipv6_addr; flags interval; }",
+        "  set internal_v4 { type ipv4_addr; flags interval; }",
+        "  set internal_v6 { type ipv6_addr; flags interval; }",
         f"  chain {chain}     {{ type filter hook input      priority -150; policy accept; }}",
         f"  chain {chain}_pre {{ type filter hook prerouting priority -200; policy accept; }}",
         "}",
@@ -157,23 +157,22 @@ def render_bootstrap(table: str, chain: str, ports: Sequence[int], ipv6_mode: st
         f"flush chain inet {table} {chain};",
         f"add rule inet {table} {chain} tcp dport {{ {ports_list} }} ip  saddr @internal_v4 accept;",
         f"add rule inet {table} {chain} tcp dport {{ {ports_list} }} ip6 saddr @internal_v6 accept;",
-        f"add rule inet {table} {chain} tcp dport {{ {ports_list} }} ip  saddr @bunny_v4 accept;",
+        f"add rule inet {table} {chain} tcp dport {{ {ports_list} }} ip  saddr @bunny_v4   accept;",
     ]
     if ipv6_mode == "allow":
-        parts.append(f"add rule inet {table} {chain} tcp dport {{ {ports_list} }} ip6 saddr @bunny_v6 accept;")
+        parts.append(f"add rule inet {table} {chain} tcp dport {{ {ports_list} }} ip6 saddr @bunny_v6   accept;")
     parts.append(f"add rule inet {table} {chain} tcp dport {{ {ports_list} }} drop;")
     # PREROUTING path (before DNAT)
     parts += [
         f"flush chain inet {table} {chain}_pre;",
         f"add rule inet {table} {chain}_pre tcp dport {{ {ports_list} }} ip  saddr @internal_v4 accept;",
         f"add rule inet {table} {chain}_pre tcp dport {{ {ports_list} }} ip6 saddr @internal_v6 accept;",
-        f"add rule inet {table} {chain}_pre tcp dport {{ {ports_list} }} ip  saddr @bunny_v4 accept;",
+        f"add rule inet {table} {chain}_pre tcp dport {{ {ports_list} }} ip  saddr @bunny_v4   accept;",
     ]
     if ipv6_mode == "allow":
-        parts.append(f"add rule inet {table} {chain}_pre tcp dport {{ {ports_list} }} ip6 saddr @bunny_v6 accept;")
+        parts.append(f"add rule inet {table} {chain}_pre tcp dport {{ {ports_list} }} ip6 saddr @bunny_v6   accept;")
     parts.append(f"add rule inet {table} {chain}_pre tcp dport {{ {ports_list} }} drop;")
     return "\n".join(parts) + "\n"
-
 
 def render_set_update(table: str, v4: Sequence[str], v6: Sequence[str], ipv6_mode: str) -> str:
     parts: List[str] = [f"flush set inet {table} bunny_v4;"]
