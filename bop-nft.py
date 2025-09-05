@@ -170,8 +170,7 @@ def render_bootstrap(table: str, chain: str, ports: Sequence[int], ipv6_mode: st
     if ipv6_mode == "allow":
         lines.append(f"add rule inet {table} {chain} tcp dport {{ {ports_list} }} ip6 saddr @bunny_v6 accept")
     lines.append(f"add rule inet {table} {chain} tcp dport {{ {ports_list} }} drop")
-    return "
-".join(lines)
+    return "".join(lines)
 
 
 def render_set_update(table: str, v4: Sequence[str], v6: Sequence[str], ipv6_mode: str) -> str:
